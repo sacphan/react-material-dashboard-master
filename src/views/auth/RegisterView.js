@@ -2,6 +2,7 @@ import React from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
+import APIManager from 'src/utils/LinkAPI';
 import {
   Box,
   Button,
@@ -51,15 +52,45 @@ const RegisterView = () => {
             validationSchema={
               Yup.object().shape({
                 email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
+                username: Yup.string().max(255).required('User name is required'),
                 firstName: Yup.string().max(255).required('First name is required'),
                 lastName: Yup.string().max(255).required('Last name is required'),
                 password: Yup.string().max(255).required('password is required'),
                 policy: Yup.boolean().oneOf([true], 'This field must be checked')
               })
             }
-            onSubmit={() => {
-              navigate('/app/dashboard', { replace: true });
-            }}
+            onSubmit={(values) => {
+              debugger
+              const UsersAccount = [{'UserName':values.username, 'PassWord': values.password }];
+             
+              const userProfile = JSON.stringify({
+                'Firstname':values.firstName,'LastName':values.lastName,'Email':values.email
+               ,'UsersAccount':UsersAccount,
+              
+            })
+              fetch(APIManager+'/api/register', {
+               method: 'post',
+               headers: {
+                  
+                 'Content-Type': 'application/json'
+               },
+               body: userProfile
+             })
+             .then(response => response.json())
+             .then(result => {
+               debugger
+                if (result.code==0) 
+                {
+                    localStorage.setItem("Token",JSON.stringify(result.data));
+                   navigate('/app/dashboard', { replace: true });
+                }
+                else{
+                  alert(`${result.message}`);
+                }
+             })
+             
+            }
+          }
           >
             {({
               errors,
@@ -123,6 +154,19 @@ const RegisterView = () => {
                   value={values.email}
                   variant="outlined"
                 />
+                 <TextField
+                  error={Boolean(touched.username && errors.username)}
+                  fullWidth
+                  helperText={touched.username && errors.username}
+                  label="User Name"
+                  margin="normal"
+                  name="username"
+                  onBlur={handleBlur}
+                  onChange={handleChange}
+                  type="text"
+                  value={values.username}
+                  variant="outlined"
+                />
                 <TextField
                   error={Boolean(touched.password && errors.password)}
                   fullWidth
@@ -171,7 +215,7 @@ const RegisterView = () => {
                 <Box my={2}>
                   <Button
                     color="primary"
-                    disabled={isSubmitting}
+                    //disabled={isSubmitting}
                     fullWidth
                     size="large"
                     type="submit"

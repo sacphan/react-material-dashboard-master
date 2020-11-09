@@ -6,15 +6,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Budget from './Budget';
-import LatestOrders from './LatestOrders';
-import LatestProducts from './LatestProducts';
-import Sales from './Sales';
-import TasksProgress from './TasksProgress';
-import TotalCustomers from './TotalCustomers';
-import TotalProfit from './TotalProfit';
-import TrafficByDevice from './TrafficByDevice';
-
-import SimpleModal from 'src/theme/modal'
+import BoardsContext from 'src/context/BoardsContext'
+import APIManager from 'src/utils/LinkAPI'
+import SimpleModal from 'src/views/Plugin/modal'
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -32,17 +26,15 @@ const Dashboard = () => {
   useEffect(() => {
     async function fetchBoardList() {
      
-      var token = localStorage.getItem("Token");
-      var test = JSON.parse(token);
-      var cac = test.token;
+      var token = JSON.parse(localStorage.getItem("Token")).token;
+    
 
-      const requestURL = "https://localhost:44373/api/BoardController/getAllBoards";
+      const requestURL = APIManager+"/api/BoardController/getAllBoards";
       const requestOptions = {
         method: 'Get',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + cac,
-          'My-Custom-Header': 'foobar'
+          'Authorization': 'Bearer ' + token
         },
         // body: JSON.stringify({ title: 'React POST Request Example' })
       };
@@ -72,6 +64,10 @@ const Dashboard = () => {
   })
 
   return (
+    <BoardsContext.Provider value={{
+      boards:boards,
+      setBoards:setBoards
+    }}>
     <Page
       className={classes.root}
       title="Dashboard"
@@ -94,6 +90,7 @@ const Dashboard = () => {
       </Container>
       
     </Page>
+    </BoardsContext.Provider>
   );
 };
 

@@ -16,7 +16,7 @@ import FacebookIcon from 'src/icons/Facebook';
 import GoogleIcon from 'src/icons/Google';
 import Page from 'src/components/Page';
 import { result } from 'lodash';
-
+import APIManager from 'src/utils/LinkAPI';
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -55,7 +55,7 @@ const LoginView = () => {
 
             
                 const login = JSON.stringify({'username': values.username, 'password': values.password })
-                fetch('https://localhost:44373/api/login', {
+                fetch(APIManager+'/api/login', {
                  method: 'post',
                  headers: {
                  

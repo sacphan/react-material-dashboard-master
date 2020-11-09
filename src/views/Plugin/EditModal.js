@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState,useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
 import SaveIcon from '@material-ui/icons/Save';
+import BoardsContext from 'src/context/BoardsContext';
 import {
  
     TextField,
  
   } from '@material-ui/core';
+  import APIManager from 'src/utils/LinkAPI';
 function rand() {
   return Math.round(Math.random() * 20) - 10;
 }
@@ -36,14 +38,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function SimpleModal(props) {
-   console.log(props)
-const {boards, setBoards}=props;
+  console.log(props)
+    const boardCurrent = props.boardCurrent;
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
   const [values,setValues] = React.useState({name:""});
+  const boardContext = useContext(BoardsContext);
   const handleOpen = () => {
+      debugger
+    setValues({id:boardCurrent.id,name:boardCurrent.name});
     setOpen(true);
   };
 
@@ -58,40 +63,41 @@ const {boards, setBoards}=props;
     });
   };
   const saveBoard = ()=>{
-    handleClose();
-    var token = JSON.parse(localStorage.getItem("Token")).token;
+    if (values.name!='')
+    {
+      handleClose();
+      var token = JSON.parse(localStorage.getItem("Token")).token;
+        
+      const requestURL = APIManager+"/api/BoardController/edit";
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+          'My-Custom-Header': 'foobar'
+        },
+         body: JSON.stringify(values)
+      };
       
-    const requestURL = "https://localhost:44373/api/BoardController/addBoard";
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token,
-        'My-Custom-Header': 'foobar'
-      },
-       body: JSON.stringify(values)
-    };
-    
-    fetch(requestURL, requestOptions)
-      .then(response => response.json())
-      .then(result => {
-          if (result.code==0)
-          {
-            boards.push(result.data);
-            let boadsnew = []
-            boards.map((item)=>{
-                boadsnew.push(item);
-            })
-            setBoards(
-                boadsnew
-            )
-          }
-          else
-          {
-            alert("Đổi profile thất bại")
-          }
-       
-      });
+      fetch(requestURL, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            if (result.code==0)
+            {                
+                const indexEdit = boardContext.boards.indexOf(boardCurrent);
+                boardContext.setBoards([...boardContext.boards.slice(0,indexEdit),result.data,...boardContext.boards.slice(indexEdit+1)])
+            }
+            else
+            {
+              alert("Tạo bảng thất bại")
+            }
+         
+        });
+    }
+   else
+   {
+     alert("bạn chưa nhập tên bảng")
+   }
 
   }
   const body = (
@@ -118,9 +124,10 @@ const {boards, setBoards}=props;
   return (
     <div>
       
-      <Button variant="contained" color="primary" onClick={handleOpen}> 
-          <AddIcon></AddIcon>        
-        </Button>
+      
+        <Button    onClick={handleOpen}>
+            Edit
+          </Button>
       <Modal
         open={open}
         onClose={handleClose}

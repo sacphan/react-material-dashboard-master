@@ -1,6 +1,7 @@
 import React,{useState} from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
   Avatar,
   Box,
@@ -12,9 +13,11 @@ import {
   makeStyles,
   TextField
 } from '@material-ui/core';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import MoneyIcon from '@material-ui/icons/Money';
+import Button from '@material-ui/core/Button';
+import EditModal from 'src/views/Plugin/EditModal';
 
+
+import AlertDialog from '../../Plugin/Dialog'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,11 +38,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-const Budget = ({ className, ...rest },props) => {
+const Budget = ({ className, ...rest }) => {
   const classes = useStyles();
   const {Name,setName} = useState('');
   const {board} = rest;
-  debugger
+  const navigate = useNavigate();
+  const MoveDetail = ()=>{
+    debugger
+    navigate(`/app/detailtable/${board.id}`, { replace: true });
+  }
   let html='';
   const handleChange = (event) => {
     setName({
@@ -71,7 +78,7 @@ const Budget = ({ className, ...rest },props) => {
           justify="space-between"
           spacing={3} 
         >
-          <Grid item>
+          <Grid item alignItems="center">
             <Typography
               color="textSecondary"
               gutterBottom
@@ -85,11 +92,9 @@ const Budget = ({ className, ...rest },props) => {
             >
               
             </Typography>
-          </Grid>
-          <Grid item>
-            <Avatar className={classes.avatar}>
-              <MoneyIcon/>
-            </Avatar>
+          </Grid >
+          <Grid item >
+            <AlertDialog boardCurrent = {board}/>
           </Grid>
         </Grid>
         <Box
@@ -97,19 +102,11 @@ const Budget = ({ className, ...rest },props) => {
           display="flex"
           alignItems="center"
         >
-          <ArrowDownwardIcon className={classes.differenceIcon} />
-          <Typography
-            className={classes.differenceValue}
-            variant="body2"
-          >
-           
-          </Typography>
-          <Typography
-            color="textSecondary"
-            variant="caption"
-          >
-           
-          </Typography>
+        
+          <EditModal boardCurrent={board}></EditModal>
+          <Button  color="primary" onClick={MoveDetail}>
+            Detail
+          </Button>
         </Box>
       </CardContent>
     </Card>
