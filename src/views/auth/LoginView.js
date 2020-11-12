@@ -17,6 +17,7 @@ import GoogleIcon from 'src/icons/Google';
 import Page from 'src/components/Page';
 import { result } from 'lodash';
 import APIManager from 'src/utils/LinkAPI';
+import { useDispatch } from 'react-redux'
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -29,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
 const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   return (
     <Page
       className={classes.root}
@@ -68,6 +69,10 @@ const LoginView = () => {
                   if (result.code==0) 
                   {
                       localStorage.setItem("Token",JSON.stringify(result.data))
+                      dispatch({
+                        type:'LOGIN'
+                        
+                      });
                      navigate('/app/dashboard', { replace: true });
                   }
                   else{
@@ -181,7 +186,7 @@ const LoginView = () => {
                 <Box my={2}>
                   <Button
                     color="primary"
-                    disabled={isSubmitting}
+                    //disabled={isSubmitting}
                     fullWidth
                     size="large"
                     type="submit"

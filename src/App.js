@@ -6,9 +6,12 @@ import GlobalStyles from 'src/components/GlobalStyles';
 import 'src/mixins/chartjs';
 import theme from 'src/theme';
 import routes from 'src/routes';
+import { useSelector } from 'react-redux';
 
 const App = () => {
-  const routing = useRoutes(routes);
+debugger
+  const  isLoggedIn  = useSelector((state) => state.AuthReducer.isLoggedIn);
+  const routing = useRoutes(routes(isLoggedIn));
 
   return (
     <ThemeProvider theme={theme}>

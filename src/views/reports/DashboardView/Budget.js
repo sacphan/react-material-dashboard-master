@@ -44,7 +44,7 @@ const Budget = ({ className, ...rest }) => {
   const {board} = rest;
   const navigate = useNavigate();
   const MoveDetail = ()=>{
-    debugger
+    
     navigate(`/app/detailtable/${board.id}`, { replace: true });
   }
   let html='';
