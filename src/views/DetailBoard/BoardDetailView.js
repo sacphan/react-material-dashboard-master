@@ -48,7 +48,7 @@ const BoardDetailView = ( ) => {
         .then(result => {
           if (result.code==0)
           {
-            console.log(result.data)
+           
             setBoardDetail(result.data);
           }
            
@@ -62,7 +62,7 @@ const BoardDetailView = ( ) => {
 
   
   boardDetail.map((item)=>{       
-    listGrid.push(<ColumnView columnCurrent={item} ></ColumnView>);
+    listGrid.push(<ColumnView key={item.id} columnCurrent={item} ></ColumnView>);
   
     })
   return (

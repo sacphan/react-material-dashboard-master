@@ -78,7 +78,7 @@ const Budget = ({ className, ...rest }) => {
           justify="space-between"
           spacing={3} 
         >
-          <Grid item alignItems="center">
+          <Grid item >
             <Typography
               color="textSecondary"
               gutterBottom

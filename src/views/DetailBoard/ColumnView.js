@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     
     let listBoardDetail  = [];
     coloumn.boardDetail.map((item)=>{
-        listBoardDetail.push(<RowView rowCurrent = {item}></RowView>  )
+        listBoardDetail.push(<RowView key={item.id} rowCurrent = {item}></RowView>  )
     })
   
      

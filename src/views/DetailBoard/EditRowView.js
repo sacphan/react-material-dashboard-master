@@ -1,11 +1,13 @@
+import EditIcon from '@material-ui/icons/Edit';
 import React, { useState,useContext } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import AddIcon from '@material-ui/icons/Add';
 import Button from '@material-ui/core/Button';
-
-import { useParams } from 'react-router-dom';
+import SaveIcon from '@material-ui/icons/Save';
+import BoardsContext from 'src/context/BoardsContext';
 import ColumnContext from 'src/context/ColumnContext';
+import RowContext from 'src/context/RowContext'
 import {
  
     TextField,
@@ -38,19 +40,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SimpleModal() {
-
-  const params = useParams();
-    const columnContext = useContext(ColumnContext);
+export default function SimpleModal(props) {
+  
+  const rowContext = useContext(RowContext);
+    const rowCurrent = props.rowCurrent;
   const classes = useStyles();
   // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = React.useState(false);
   const [values,setValues] = React.useState({content:""});
-
+  const boardContext = useContext(BoardsContext);
   const handleOpen = () => {
-      
-   
+      debugger
+    setValues({id:rowCurrent.id,content:rowCurrent.content});
     setOpen(true);
   };
 
@@ -64,19 +66,13 @@ export default function SimpleModal() {
       [event.target.name]: event.target.value
     });
   };
- 
-  const AddRow = ()=>{
+  const saveBoard = ()=>{
     if (values.content!='')
     {
-      const boardDetailAdd = {
-        Content:values.content,
-        ColumnId:columnContext.coloumn.id,
-        BoardId:params.id
-      }
       handleClose();
       var token = JSON.parse(localStorage.getItem("Token")).token;
         
-      const requestURL = APIManager+"/api/BoardController/addBoardDetail";
+      const requestURL = APIManager+"/api/BoardController/editBoardDetail";
       const requestOptions = {
         method: 'POST',
         headers: {
@@ -84,44 +80,42 @@ export default function SimpleModal() {
           'Authorization': 'Bearer ' + token,
           'My-Custom-Header': 'foobar'
         },
-         body: JSON.stringify(boardDetailAdd)
+         body: JSON.stringify(values)
       };
       
       fetch(requestURL, requestOptions)
         .then(response => response.json())
         .then(result => {
             if (result.code==0)
-            {                
-                const rownew =[...columnContext.coloumn.boardDetail,result.data];
-                const columnNew = {
-                    id:columnContext.coloumn.id,
-                    boardDetail:rownew,
-                    name:columnContext.coloumn.name,
-                    columnMappingBoard:columnContext.coloumn.columnMappingBoard
-                } 
-                columnContext.setColumn(columnNew);
+            {     
+                 const rowNew ={
+                   id:rowContext.row.id,
+                   content:result.data.content,
+                   ColumnId:rowContext.row.coloumnid,
+                   BoardId:rowContext.row.boardid
+                 }
+                 rowContext.setRow(rowNew)
             }
             else
             {
-              alert("Tạo bảng thất bại")
+              alert("sửa nội dung thất bại")
             }
          
         });
     }
    else
    {
-     alert("bạn chưa nhập tên bảng")
+     alert("bạn chưa nhập nội dung")
    }
-
 
   }
   const body = (
     <div style={modalStyle} className={classes.paper}>
-      <h2 id="simple-modal-title">Add Row</h2>
+      <h2 id="simple-modal-title">Add Board</h2>
       <TextField
                 fullWidth
                 
-                label="Content"
+                label="content"
                 name="content"
                 onChange={handleChange}
                 required
@@ -129,7 +123,7 @@ export default function SimpleModal() {
                 variant="outlined"
                
               />
-        <Button variant="contained" color="primary" onClick={AddRow} > 
+        <Button variant="contained" color="primary" onClick={saveBoard} > 
           Save     
         </Button>
     
@@ -140,7 +134,10 @@ export default function SimpleModal() {
     <div>
       
       
-      <Button width={1} variant="contained" onClick={handleOpen}><AddIcon></AddIcon></Button>
+      <Button 
+       onClick={handleOpen}>
+         <EditIcon mt={10} style={{maxWidth: '15px', maxHeight: '15px', minWidth: '15px', minHeight: '15px'}}></EditIcon>
+         </Button> 
       <Modal
         open={open}
         onClose={handleClose}
