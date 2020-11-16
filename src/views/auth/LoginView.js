@@ -1,4 +1,5 @@
 import React from 'react';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -18,6 +19,7 @@ import Page from 'src/components/Page';
 import { result } from 'lodash';
 import APIManager from 'src/utils/LinkAPI';
 import { useDispatch } from 'react-redux'
+
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.background.dark,
@@ -31,6 +33,40 @@ const LoginView = () => {
   const classes = useStyles();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const responseFacebook = (response) => {
+  
+    const LoginFacebook={
+      Email:response.email,
+      Name:response.name,
+      FacebookId:response.id
+    }
+    console.log(LoginFacebook)
+
+    fetch(APIManager+'/api/loginFacebook', {
+      method: 'post',
+      headers: {
+      
+        'Content-Type': 'application/json'
+      },
+      body:  JSON.stringify(LoginFacebook)
+    })
+    .then(response => response.json())
+    .then(result => {
+       if (result.code==0) 
+       {
+           localStorage.setItem("Token",JSON.stringify(result.data))
+           dispatch({
+             type:'LOGIN'           
+           });
+          navigate('/app/dashboard', { replace: true });
+       }
+       else{
+         alert(`${result.message}`)
+       }
+    }
+
+     );
+  }
   return (
     <Page
       className={classes.root}
@@ -118,16 +154,30 @@ const LoginView = () => {
                     xs={12}
                     md={6}
                   >
-                    <Button
-                      color="primary"
-                      fullWidth
-                      startIcon={<FacebookIcon />}
-                      onClick={handleSubmit}
-                      size="large"
-                      variant="contained"
-                    >
-                      Login with Facebook
-                    </Button>
+                      
+                     <FacebookLogin
+                        appId="805757080210462"
+                        autoLoad
+                        fields="name,email,picture"
+                       
+                        callback={responseFacebook}
+                        render={renderProps => (
+                          <Button
+                          color="primary"
+                          fullWidth
+                          
+                           startIcon={<FacebookIcon />}
+                           onClick={renderProps.onClick}
+                          size="large"
+                          variant="contained"
+                        >
+                         
+                         Login with Facebook
+                        </Button>
+  )} 
+/>
+
+                   
                   </Grid>
                   <Grid
                     item
