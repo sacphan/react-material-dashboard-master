@@ -1,5 +1,6 @@
 import React from 'react';
 import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props'
+import { GoogleLogin } from 'react-google-login';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
@@ -49,6 +50,39 @@ const LoginView = () => {
         'Content-Type': 'application/json'
       },
       body:  JSON.stringify(LoginFacebook)
+    })
+    .then(response => response.json())
+    .then(result => {
+       if (result.code==0) 
+       {
+           localStorage.setItem("Token",JSON.stringify(result.data))
+           dispatch({
+             type:'LOGIN'           
+           });
+          navigate('/app/dashboard', { replace: true });
+       }
+       else{
+         alert(`${result.message}`)
+       }
+    }
+
+     );
+  }
+  const responseGoogle = (response) => {
+    const loginGoogle={
+      Email:response.profileObj.email,
+      Name:response.profileObj.name,
+      GoogleId:response.profileObj.googleId
+    }
+    console.log(response)
+
+    fetch(APIManager+'/api/loginGoogle', {
+      method: 'post',
+      headers: {
+      
+        'Content-Type': 'application/json'
+      },
+      body:  JSON.stringify(loginGoogle)
     })
     .then(response => response.json())
     .then(result => {
@@ -184,15 +218,26 @@ const LoginView = () => {
                     xs={12}
                     md={6}
                   >
-                    <Button
+                     <GoogleLogin
+    clientId="150788904130-4n1uafts882g9bcd9l6eqsl1omk1kspv.apps.googleusercontent.com"
+    render={renderProps => (
+      
+      <Button
                       fullWidth
                       startIcon={<GoogleIcon />}
-                      onClick={handleSubmit}
+                      onClick={renderProps.onClick}
                       size="large"
                       variant="contained"
                     >
                       Login with Google
                     </Button>
+      )}
+    buttonText="Login"
+    onSuccess={responseGoogle}
+    onFailure={responseGoogle}
+    cookiePolicy={'single_host_origin'}
+  />
+                  
                   </Grid>
                 </Grid>
                 <Box
